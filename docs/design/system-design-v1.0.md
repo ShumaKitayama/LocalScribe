@@ -248,6 +248,8 @@ whisper-cli -m <model> -f <wav> -l <lang> -oj -of <work/whisper-out> -pp
 
 タイムスタンプはミリ秒の整数。SRT へ出すときだけ `HH:MM:SS,mmm` にする。時刻の保存は UTC の RFC3339。
 
+2026-10-27 追記: SRT の各字幕のあとには空行を置く。通し番号は 1 から始める。
+
 `schema_version` は 1。
 
 ### Transcript JSON
