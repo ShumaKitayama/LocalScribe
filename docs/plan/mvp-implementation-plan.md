@@ -254,6 +254,10 @@ JSON は設計書 7 節の形で、`schema_version` が 1。TXT は表示文を�
 
 完了条件: 2 件連続投入で同時に transcribing にならない。キャンセルで作業ファイルが残らない。失敗で 2 件目が続行する。再起動処理のあと自動では推論が始まらない。
 
+2026-10-27 追記（フェーズ 6 完了）: `internal/application` に 1 並列ワーカーと設計書 9 節のサービス API を追加した。`InstallModel` は未実装。ジョブ JSON に結果ディレクトリ `result_dir` を保存する（`GetTranscript` / 再出力用）。偽 Prober / Converter / Engine のテストで完了条件を確認した。`go test ./...` が成功する。
+
+2026-10-27 追記（レビュー）: `go test -race ./internal/application/` を含め完了条件を確認した。テスト用 ID 生成はワーカーと呼び出し元が同時に使うため、mutex で保護した。`Doctor` は large-v3 が使えるかだけを見る。`Close` はワーカーの待ち受けを止めるが、実行中ジョブの context は取消しない。
+
 依頼文:
 
 ```

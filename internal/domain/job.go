@@ -71,6 +71,7 @@ type TranscriptionJob struct {
 	EndedAt       time.Time            `json:"ended_at,omitzero"`
 	Error         *UserError           `json:"error,omitempty"`
 	TranscriptID  string               `json:"transcript_id,omitempty"`
+	ResultDir     string               `json:"result_dir,omitempty"`
 	Progress      JobProgress          `json:"progress"`
 }
 

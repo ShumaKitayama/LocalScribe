@@ -221,6 +221,8 @@ whisper-cli -m <model> -f <wav> -l <lang> -oj -of <work/whisper-out> -pp
 
 起動時、終了状態でないジョブはすべて `interrupted` に更新してからキューを空のまま待つ。自動再開しない。
 
+2026-10-27 追記: ジョブ JSON に `result_dir`（文字起こし結果ディレクトリの絶対パス）と `transcript_id` を保存する。`GetTranscript` と再出力は `result_dir` の `transcript.json` を正本にする。
+
 ルール:
 
 - 推論の同時実行は 1。待ちジョブは投入順。
@@ -403,6 +405,8 @@ localscribe doctor
 `transcribe` の標準出力は、ジョブ ID、状態、出力ディレクトリ、生成ファイルを持つ JSON を 1 つ。`models list` の標準出力は JSON 配列。進捗とログは標準エラー。
 
 診断項目は、OS が darwin/arm64 か、FFmpeg、FFprobe、whisper-cli、各モデルが partial でないか、出力先へ書けるか、Application Support と作業領域の空き容量。
+
+2026-10-27 追記: フェーズ 6 の `Doctor` は large-v3 が使えるかだけを返す。上の診断項目は CLI の `doctor` 実装時に揃える。`Service.Close` は待ち受けを止める。実行中ジョブの取消は `CancelJob` が行う。
 
 ## 10. 非機能とセキュリティ
 
