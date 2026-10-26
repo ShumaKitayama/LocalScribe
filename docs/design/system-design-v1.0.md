@@ -410,6 +410,8 @@ localscribe doctor
 | コマンド実行 | `exec.CommandContext` の引数配列。シェル文字列を組み立てない |
 | パッケージ | App Sandbox は無効。ユーザー指定パスと Documents を読むため |
 | ライセンス | 同梱 FFmpeg が GPL になるビルドなら、同梱を止めて設計へ戻す |
+
+2026-10-27 追記: 開発機の Homebrew ffmpeg 9.0.2_1 は `--enable-gpl`（libx264、libx265）付きである。PATH 上の開発用としては使い、アプリ同梱の対象にはしない。
 | バージョン | `versions.lock` に Go、Wails、whisper.cpp の revision、FFmpeg の入手方法を書く |
 
 ユーザー向けエラーは操作で直せる内容にする（形式が未対応、モデル未導入、空き容量不足、マイクが拒否された、認識プロセスが終了した）。詳細ログは `~/Library/Logs/LocalScribe/localscribe.log` と CLI の標準エラーへ書く。
