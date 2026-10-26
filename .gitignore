@@ -2,7 +2,6 @@ build/bin/
 build/whisper/
 build/whisper-src/
 frontend/node_modules/
-frontend/dist/
 
 *.bin
 *.partial

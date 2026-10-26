@@ -2,7 +2,11 @@
 
 macOS（Apple Silicon）向けの、オフライン文字起こしアプリです。音声と認識結果は外部へ送りません。GUI と CLI は同じ Go の処理を使います。
 
-フェーズ 8（CLI）まで完了しています。`go build -o localscribe ./cmd/localscribe` で CLI をビルドできます。`make test` で `go test ./...`。GUI は未実装です。
+フェーズ 9（Wails 枠・マイク確認）まで完了しています（実機録音の保存を確認済み）。文字起こし GUI（フェーズ 10）は未実装です。
+
+- CLI: `go build -o localscribe ./cmd/localscribe`
+- テスト: `make test`
+- GUI（録音確認のみ）: `wails dev`（要 `npm install` in `frontend/`）。本番ビルドは `wails build`
 
 | 文書                                             | 役割                                 |
 | ------------------------------------------------ | ------------------------------------ |

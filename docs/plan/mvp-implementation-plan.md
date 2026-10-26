@@ -332,6 +332,12 @@ JSON は設計書 7 節の形で、`schema_version` が 1。TXT は表示文を�
 
 完了条件: 生成パスの音声ファイルが 0 バイトでない。App Sandbox を有効にしていない。
 
+2026-10-27 追記（フェーズ 9 実装）: Wails v2.17.0 の `react-ts` から `frontend/` と `wails.json` を取り込み、ルートに `main.go` / `app.go`、`build/darwin/Info.plist`（マイク文言）、録音開始・停止 UI と `SaveRecording` を追加した。`wails build` で `.app` を生成し `NSMicrophoneUsageDescription` を確認済み。
+
+2026-10-27 追記（フェーズ 9 実機確認完了）: macOS 27.0.1 上でマイク許可・録音停止後に `~/Library/Caches/LocalScribe/work/recordings/recording_1793047549472.webm`（157593 バイト）が生成された。フェーズ 10 に進める。
+
+2026-10-27 追記（レビュー）: 同じファイルが 157593 バイトであることを確認した。画面は録音開始と停止だけで、文字起こしには繋いでいない。`frontend/dist` は `main.go` の埋め込みに必要なので Git に含める。`Info.plist` はマイク文言だけで、CFBundle キーは無い。App Sandbox は無効。`go test ./...` は成功する。フェーズ 10 は未着手。
+
 依頼文:
 
 ```

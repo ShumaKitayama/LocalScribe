@@ -116,6 +116,8 @@ Wails 既存の AssetServer に、ジョブ ID から元ファイルを読むハ
 
 WebView の `MediaRecorder` で録り、停止時にバイト列を Go へ渡してキャッシュへ保存し、通常の文字起こしジョブへ入れる。`NSMicrophoneUsageDescription` は「音声を文字起こしするためにマイクを使います。」とする。GUI の作り込みより先に、実機で許可ダイアログと短い録音が通ることを確認する。ここで失敗したら実装を止めて設計へ戻す。
 
+2026-10-27 追記: フェーズ 9 の `SaveRecording` は `~/Library/Caches/LocalScribe/work/recordings/recording_<unix milli>.webm` へ保存し、パスを画面へ返す。`StartTranscription` はまだ呼ばない。`build/darwin/Info.plist` はマイクの説明だけを持ち、Wails テンプレートの CFBundle キーは入っていない。生成した `.app` に App Sandbox の entitlement は付いていない。`go.mod` の Go 行は `1.25.0`、`golang.org/x/sys` は v0.46.0（Wails v2.17.0 が要求する版）である。
+
 ## 4. ディレクトリ
 
 ```
