@@ -411,6 +411,8 @@ localscribe doctor
 
 2026-10-27 追記: フェーズ 6 の `Doctor` は large-v3 が使えるかだけを返す。上の診断項目は CLI の `doctor` 実装時に揃える。`Service.Close` は待ち受けを止める。実行中ジョブの取消は `CancelJob` が行う。
 
+2026-10-27 追記: CLI の `doctor` は診断項目を標準出力へ書く。モデルが `missing` なだけでは失敗にしない。`partial`、ツール不足、出力先へ書けないこと、空き容量を読めないことは終了コード 2。`doctor` は出力先、Application Support、作業領域が無ければ作る。`Service.Doctor` は large-v3 の確認のまま。詳細ログ用の `localscribe.log` はまだ書いていない。利用者向けの文だけを標準エラーへ出す。
+
 ## 10. 非機能とセキュリティ
 
 | 分野 | 要件 |

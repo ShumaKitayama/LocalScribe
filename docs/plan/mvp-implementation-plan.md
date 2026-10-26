@@ -305,6 +305,10 @@ JSON は設計書 7 節の形で、`schema_version` が 1。TXT は表示文を�
 
 完了条件: フラグ不足が終了コード 1。偽サービスで成功 JSON が標準出力だけに出る。進捗行が標準出力へ混ざらない。
 
+2026-10-27 追記（フェーズ 8 完了）: `cmd/localscribe` に `transcribe` / `models list` / `models install` / `doctor` を追加した。終了コード 0–3、進捗は標準エラー、結果 JSON は標準出力。`go test ./...` が成功する。
+
+2026-10-27 追記（レビュー）: フラグ不足と `doctor` は、FFmpeg や whisper-cli が無くても文字起こしサービスを起動しない。`models` はモデル取得サービスだけを使う。`transcribe` の結果 JSON の `files` は、出力先を読まずに組み立てたファイル名。入力パスはフラグより前に置く。`models install` は SIGINT で取得を取消しない。既にインストール済みは終了コード 1。長すぎる初期プロンプトは終了コード 2。実機の `doctor` は whisper-cli が無いため終了コード 2。
+
 依頼文:
 
 ```
