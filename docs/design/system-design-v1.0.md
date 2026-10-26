@@ -162,6 +162,8 @@ LocalScribe/
 
 Go module path は `github.com/ShumaKitayama/localscribe` とする。
 
+2026-10-27 追記: `platform/macos` はパス用の `domain.UserError` も返す。依存表の「macOS」に加え、エラー型は domain を使う。
+
 ## 5. 音声認識パイプライン
 
 1. 入力検証。拡張子、ファイルであること、読取可能であること、音声トラックがあること。
