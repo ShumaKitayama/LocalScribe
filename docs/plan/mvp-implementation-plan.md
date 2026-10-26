@@ -280,6 +280,10 @@ JSON は設計書 7 節の形で、`schema_version` が 1。TXT は表示文を�
 
 完了条件: 途中で切れた応答が `.partial` のままになり、`ListModels` が利用可能にしない。下限未満を拒否する。正式ファイルの上書きをしない。
 
+2026-10-27 追記（フェーズ 7 完了）: `catalog.go` と `model_service.go` を追加し、`InstallModel` / `ListModels` を実装した。取得は `.partial` → サイズ・SHA-256 → `manifest.json` → `rename`。httptest のペイロード `model-payload-for-test-install` の SHA-256 は `05bda8466ff17f066afec451d325befa7bb01ba3c214e90af1c66d769f38af10`（カタログのピンは未固定）。`go test ./...` が成功する。
+
+2026-10-27 追記（レビュー）: 中断で `.partial` が残ること、下限未満とハッシュ不一致で `.partial` を消すこと、正式ファイルを上書きしないこと、空き容量不足では HTTP を呼ばないこと、正式ファイルを消した再取得は manifest の SHA-256 と照合することを確認した。実モデルの SHA-256 は未計測で、カタログのピンは空のまま。物理メモリ 24 GiB 未満の案内は未実装。
+
 依頼文:
 
 ```

@@ -40,6 +40,7 @@ type Service struct {
 	prober    AudioProber
 	converter AudioConverter
 	engine    engine.Engine
+	models    *ModelService
 	manager   *JobManager
 	now       func() time.Time
 	idGen     func() (string, error)
@@ -50,13 +51,15 @@ type Service struct {
 
 // ServiceConfig は依存を差し替えるための設定である。
 type ServiceConfig struct {
-	Home     string
-	JobsDir  string
-	Prober   AudioProber
-	Converter AudioConverter
-	Engine   engine.Engine
-	Now      func() time.Time
-	IDGen    func() (string, error)
+	Home         string
+	JobsDir      string
+	Prober       AudioProber
+	Converter    AudioConverter
+	Engine       engine.Engine
+	ModelHTTP    HTTPDoer
+	ModelCatalog []CatalogEntry
+	Now          func() time.Time
+	IDGen        func() (string, error)
 }
 
 // NewService は保存層を初期化し、中断マーク後にワーカーを 1 本だけ起動する。
@@ -96,6 +99,14 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 	if err := jobs.MarkInterruptedOnStartup(now().UTC()); err != nil {
 		return nil, err
 	}
+	models, err := NewModelService(ModelServiceConfig{
+		Home:    cfg.Home,
+		Catalog: cfg.ModelCatalog,
+		HTTP:    cfg.ModelHTTP,
+	})
+	if err != nil {
+		return nil, err
+	}
 	workerCtx, workerCancel := context.WithCancel(context.Background())
 	svc := &Service{
 		home:         cfg.Home,
@@ -105,6 +116,7 @@ func NewService(cfg ServiceConfig) (*Service, error) {
 		prober:       cfg.Prober,
 		converter:    cfg.Converter,
 		engine:       cfg.Engine,
+		models:       models,
 		manager:      NewJobManager(),
 		now:          now,
 		idGen:        idGen,
@@ -125,7 +137,7 @@ func (s *Service) StartTranscription(req domain.TranscriptionRequest) (string, e
 	if err := req.Validate(); err != nil {
 		return "", err
 	}
-	if err := validateModelAvailable(s.home, req.ModelID); err != nil {
+	if err := ValidateModelAvailable(s.home, req.ModelID); err != nil {
 		return "", err
 	}
 	if _, err := os.Stat(req.SourcePath); err != nil {
@@ -231,13 +243,12 @@ func (s *Service) ExportTranscript(transcriptID string, formats []domain.ExportF
 
 // ListModels はカタログとファイル状態を返す。
 func (s *Service) ListModels() ([]domain.ModelInfo, error) {
-	return listInstalledModels(s.home)
+	return s.models.List()
 }
 
-// InstallModel はフェーズ 7 まで未実装である。
-func (s *Service) InstallModel(modelID string) error {
-	_ = modelID
-	return &domain.UserError{Message: "モデルの取得は未実装です", Detail: "not implemented"}
+// InstallModel はカタログからモデルを取得する。
+func (s *Service) InstallModel(ctx context.Context, modelID string) error {
+	return s.models.Install(ctx, modelID)
 }
 
 // GetSettings は settings.json を読む。
@@ -253,7 +264,7 @@ func (s *Service) UpdateSettings(settings domain.AppSettings) error {
 // Doctor は簡易な環境診断を返す。
 func (s *Service) Doctor() (DoctorReport, error) {
 	var issues []string
-	if err := validateModelAvailable(s.home, domain.ModelLargeV3); err != nil {
+	if err := ValidateModelAvailable(s.home, domain.ModelLargeV3); err != nil {
 		issues = append(issues, err.Error())
 	}
 	return DoctorReport{Issues: issues}, nil
@@ -482,70 +493,9 @@ func writeDerivedExports(dir string, transcript domain.Transcript) error {
 	})
 }
 
-func validateModelAvailable(home, modelID string) error {
-	fileName, ok := domain.ModelFileName(modelID)
-	if !ok {
-		return &domain.UserError{Message: "対応していないモデルです", Detail: modelID}
-	}
-	modelDir := macos.ModelsDir(home)
-	modelPath := filepath.Join(modelDir, fileName)
-	partialPath := modelPath + ".partial"
-	if _, err := os.Stat(partialPath); err == nil {
-		return &domain.UserError{Message: "モデルは取得途中です", Detail: modelID}
-	}
-	info, err := os.Stat(modelPath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return &domain.UserError{Message: "モデルが導入されていません", Detail: modelID}
-		}
-		return &domain.UserError{Message: "モデルを確認できません", Detail: err.Error()}
-	}
-	minBytes, ok := domain.ModelMinBytes(modelID)
-	if !ok {
-		return &domain.UserError{Message: "対応していないモデルです", Detail: modelID}
-	}
-	if info.Size() < minBytes {
-		return &domain.UserError{Message: "モデルファイルが不完全です", Detail: modelID}
-	}
-	return nil
-}
-
 func modelPath(home, modelID string) string {
 	fileName, _ := domain.ModelFileName(modelID)
 	return filepath.Join(macos.ModelsDir(home), fileName)
-}
-
-func listInstalledModels(home string) ([]domain.ModelInfo, error) {
-	ids := []string{domain.ModelLargeV3, domain.ModelLargeV3Turbo}
-	out := make([]domain.ModelInfo, 0, len(ids))
-	for _, id := range ids {
-		fileName, ok := domain.ModelFileName(id)
-		if !ok {
-			continue
-		}
-		path := filepath.Join(macos.ModelsDir(home), fileName)
-		info := domain.ModelInfo{ID: id, FileName: fileName, Status: domain.ModelMissing}
-		if _, err := os.Stat(path + ".partial"); err == nil {
-			info.Status = domain.ModelPartial
-			out = append(out, info)
-			continue
-		}
-		stat, err := os.Stat(path)
-		if err != nil {
-			out = append(out, info)
-			continue
-		}
-		info.SizeBytes = stat.Size()
-		info.Path = path
-		minBytes, _ := domain.ModelMinBytes(id)
-		if stat.Size() < minBytes {
-			info.Status = domain.ModelPartial
-		} else {
-			info.Status = domain.ModelAvailable
-		}
-		out = append(out, info)
-	}
-	return out, nil
 }
 
 func asUserError(err error) *domain.UserError {

@@ -342,7 +342,10 @@ https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bi
 - 完了時に SHA-256 を計算して `manifest.json` に保存する。カタログにピンがある場合は一致必須。ピンが空のあいだは、初回取得のハッシュを manifest に記録し、次回以降その値と照合する。計測したハッシュは実装完了報告に含め、設計側がカタログへ固定する。
 - 変換前の空き容量確認は `duration_ms / 1000 * 32000 + 64MiB`。長さが不明なときは 2 GiB 以上の空きを要求する。
 - モデル取得前は、下限サイズ + 64MiB の空きを要求する。
+- `~/Library/Application Support/LocalScribe/models/manifest.json` にモデル ID ごとの SHA-256 とサイズを保存する。
 - 物理メモリが 24 GiB 未満で large-v3 を選んだとき、turbo を案内する。
+
+2026-10-27 追記: `InstallModel` は `context` を受け取る。取得が途中で切れたときは `.partial` を残し、下限未満とハッシュ不一致のときは `.partial` を削除する。再取得の照合先は、カタログのピンが空なら manifest に記録した SHA-256。導入済みファイルの照合は manifest だけを見る。`ListModels` は manifest の読み取り失敗を無視する。実ファイルの SHA-256 は未計測で、カタログのピンは空。物理メモリ 24 GiB 未満で turbo を案内する処理は未実装。
 
 開発中の `whisper-cli` 解決順:
 
