@@ -25,9 +25,21 @@ macOS（Apple Silicon）向けの、オフライン文字起こしアプリで�
 - Node.js と npm（画面のビルドに使う）
 - Wails v2.17.0
 - CMake
-- FFmpeg の `ffmpeg` と `ffprobe`（PATH に置く）
+- FFmpeg の `ffmpeg` と `ffprobe`（下の手順で PATH に置く）
 
-Homebrew の FFmpeg は GPL です。パッケージには同梱しません。実行時は、その Mac の PATH にある `ffmpeg` と `ffprobe` を使います。
+### FFmpeg
+
+Apple Silicon の Homebrew なら、次の 1 本で `ffmpeg` と `ffprobe` の両方が入ります。置き場所は `/opt/homebrew/bin` です。
+
+```sh
+brew install ffmpeg
+command -v ffmpeg
+command -v ffprobe
+```
+
+両方とも `/opt/homebrew/bin/...` と出れば、ターミナルの PATH に載っています。`command -v` が空なら、新しいターミナルを開くか、`eval "$(brew shellenv)"` を実行してからもう一度確認します。
+
+この FFmpeg は GPL です。`.app` には同梱しません。実行時は、そのプロセスの PATH にある `ffmpeg` と `ffprobe` を使います。
 
 ```sh
 git clone https://github.com/ShumaKitayama/LocalScribe.git
@@ -61,6 +73,57 @@ build/dist/localscribe transcribe lecture.m4a --model large-v3 --language ja --f
 ```
 
 マイクを使うと、初回に「音声を文字起こしするためにマイクを使います。」の許可を求めます。結果の初期保存先は `~/Documents/LocalScribe/Transcripts` です。
+
+## トラブルシューティング
+
+アプリが起動することと、文字起こしに必要なファイルが揃っていることは別です。モデルの `ggml-*.bin` は `.app` に入っていません。初回の取得は、ネットワークがある状態で、その Mac ごとに 1 回行います。GUI の設定画面にモデル取得のボタンはありません。取得は CLI で行います。
+
+### モデルが導入されていません
+
+`doctor` に次が出るのは、まだ取得していないときの表示です。`missing` だけでは `doctor` は失敗にしません。
+
+```text
+Model large-v3: missing
+Model large-v3-turbo: missing
+```
+
+文字起こしを始めると「モデルが導入されていません」になります。リポジトリのディレクトリで、パッケージした CLI を使います。
+
+```sh
+build/dist/localscribe models list
+build/dist/localscribe models install large-v3
+```
+
+高速側は `build/dist/localscribe models install large-v3-turbo` です。保存先は GUI と CLI で同じ `~/Library/Application Support/LocalScribe/models/` です。取得後に確認します。
+
+```sh
+build/dist/localscribe doctor
+build/dist/localscribe models list
+```
+
+`large-v3` が `available OK` になってから、`build/dist/LocalScribe.app` でファイル選択と文字起こしを試します。
+
+### FFmpeg が見つかりません
+
+`doctor` の該当行は、見つかれば `FFmpeg: /opt/homebrew/bin/ffmpeg OK` と `FFprobe: /opt/homebrew/bin/ffprobe OK`、無ければ `FFmpeg: 見つかりません` です。上の「FFmpeg」の手順で入れます。
+
+ターミナルから実行した `doctor` と、Dock から起動した GUI は、同じ探し方を使います。プロセスの PATH は別です。Dock 起動のアプリには、ターミナルで有効な `/opt/homebrew/bin` が入らないことがあります。そのときは GUI だけが「FFmpeg が見つかりません」になります。PATH が通っているターミナルから、アプリ本体を直接起動すると、その PATH を使います。
+
+```sh
+build/dist/LocalScribe.app/Contents/MacOS/LocalScribe
+```
+
+whisper-cli は `.app` の `Contents/Resources/bin/whisper-cli` に入っています。FFmpeg とは別です。
+
+### cmake がありません
+
+`scripts/build-engine.sh` が `cmake: command not found` で止まったときは、エンジンのビルドがその時点で終わっていません。
+
+```sh
+brew install cmake
+scripts/build-engine.sh
+make package-macos
+```
 
 ## 開発時のコマンド
 

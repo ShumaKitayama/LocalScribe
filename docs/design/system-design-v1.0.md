@@ -367,6 +367,8 @@ FFmpeg の解決順:
 
 2026-10-27 追記: `whisper-cli` の同梱先は `Contents/Resources/bin/whisper-cli`。`scripts/package-macos.sh` が配置する。バンドル実行時は `LOCALSCRIBE_WHISPER_CLI` の次にこのパスを見る。FFmpeg の GPL 判定に失敗した場合は PATH / 環境変数に依存する。
 
+2026-10-27 追記: Dock や Finder から起動した `.app` の PATH には、ターミナルの `/opt/homebrew/bin` が入らないことがある。CLI の `doctor` が FFmpeg を見つけていても、GUI は「FFmpeg が見つかりません」になる。PATH が通ったターミナルから `Contents/MacOS/LocalScribe` を起動すると、その PATH を使う。導入手順は README のトラブルシューティング。
+
 `scripts/build-engine.sh` は `https://github.com/ggml-org/whisper.cpp` を Metal 有効で Release ビルドし、採用した git revision を `versions.lock` に記録する。`master` の追従を固定値にしない。ビルド結果のバイナリは Git に入れない。
 
 2026-10-27 追記: `scripts/build-engine.sh` は cmake と C++ が無いと、取得の前に止めて `brew install cmake` を案内する。この Mac では cmake 4.4.4 を入れ、whisper.cpp `d1be6fde11ac6e0407606b4e42fe72d34add8037`（tag v1.9.5）で `build/whisper/whisper-cli` を作った。`build/darwin/Info.plist` は Wails の CFBundle 項目とマイク文言の両方を持つ。`make package-macos` は成功し、Homebrew の GPL FFmpeg は同梱しなかった。`versions.lock` の `ffmpeg_bundle_status` は `not_bundled_gpl`。成果物の `build/dist` は Git に入れない。

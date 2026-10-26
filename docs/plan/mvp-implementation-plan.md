@@ -29,6 +29,8 @@
 
 2026-10-27 追記: この開発機では Homebrew の ffmpeg 9.0.2_1 を入れ、`/opt/homebrew/bin/ffmpeg` と `/opt/homebrew/bin/ffprobe` が PATH にある。configure に `--enable-gpl` と libx264 / libx265 が含まれる。開発中の PATH 利用はこれでよい。フェーズ 11 でこのバイナリを `.app` にコピーしない。
 
+2026-10-27 追記: 別 Mac への導入、`brew install ffmpeg`、モデル未導入、`cmake` 不足は README のトラブルシューティングに書いた。モデル取得の GUI ボタンは足していない。
+
 `wails` CLI はフェーズ 9 の直前に `go install github.com/wailsapp/wails/v2/cmd/wails@v2.17.0` で入れる。フェーズ 0 ではまだ使わない。
 
 ## フェーズ一覧
