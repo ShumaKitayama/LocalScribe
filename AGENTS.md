@@ -1,0 +1,31 @@
+# LocalScribe
+
+オフラインの macOS 文字起こし。共通処理は Go。GUI は Wails v2.17.0 + React。CLI は `cmd/localscribe`。モジュールは `github.com/ShumaKitayama/localscribe`。
+
+設計は `docs/design/system-design-v1.0.md`。作業順と完了条件は `docs/plan/mvp-implementation-plan.md`。依頼されたフェーズだけを行い、次へ進まない。
+
+## ドキュメントとコード
+
+ドキュメントと既存コードが食い違うときは、コードの書き方に従う。見つけた食い違いを、最後の返答で全て挙げる。コードがまだ無い事項は設計書に従う。食い違いを黙って設計書側へ合わせない。
+
+## 境界
+
+- 作らないもの: 履歴検索、VAD 調整、Finder 連携、フォルダ監視、話者分離、リアルタイム認識、他アプリ入力、Wails v3、量子化モデル。
+- 推論は 1 並列。元ファイルは変更も削除もしない。出力先の既存ディレクトリは上書きしない。
+- 外部プロセスは `exec.CommandContext` の引数配列で起動する。
+- 進捗率が実測できないとき、パーセントを入れない。
+- 通信はモデル取得だけ。音声と認識結果を送らない。
+- コミットしないもの: `*.bin`、`*.partial`、作業 WAV、`build/whisper/`、`node_modules`。
+
+## 配置
+
+`internal/domain` 型。`application` 手順。`audio` FFmpeg。`engine/whisper` whisper-cli。`storage` JSON。`export` TXT/SRT/JSON。`platform/macos` パス。`app.go` は Wails の入口で、`application` は Wails を import しない。
+
+## 確認
+
+```sh
+go test ./...
+go test -tags integration ./...
+```
+
+フェーズ 9 以降は、テストに加えて変更した画面を実機で操作する。
