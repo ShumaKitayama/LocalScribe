@@ -2,7 +2,9 @@
 
 macOS（Apple Silicon）向けの、オフライン文字起こしアプリです。音声と認識結果は外部へ送りません。GUI と CLI は同じ Go の処理を使います。
 
-フェーズ 10（文字起こし GUI）まで完了しています。パッケージ化（フェーズ 11）は未実装です。
+フェーズ 11（macOS パッケージ）まで完了しています。受け入れ記録（フェーズ 12）は未実施です。
+
+パッケージ: 先に `scripts/build-engine.sh` で whisper-cli を用意し、`make package-macos`（または `scripts/package-macos.sh`）で `build/dist/LocalScribe.app` と CLI を生成する。
 
 - CLI: `go build -o localscribe ./cmd/localscribe`
 - テスト: `make test`
@@ -21,5 +23,6 @@ macOS（Apple Silicon）向けの、オフライン文字起こしアプリで�
 - Xcode Command Line Tools
 - Go 1.25 以上
 - FFmpeg（`ffmpeg` と `ffprobe`）
+- CMake（`scripts/build-engine.sh` 用。無ければ `brew install cmake`）
 
 モデルファイル（約 4.4 GiB）は Git に含まれません。各 Mac の初回利用時に取得します。

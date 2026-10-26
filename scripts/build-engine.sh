@@ -7,6 +7,18 @@ SRC_DIR="$ROOT/build/whisper-src"
 OUT_DIR="$ROOT/build/whisper"
 BINARY_NAME="whisper-cli"
 
+require_tool() {
+  local name="$1"
+  local hint="$2"
+  if ! command -v "$name" >/dev/null 2>&1; then
+    echo "${name} がありません。${hint}" >&2
+    exit 1
+  fi
+}
+
+require_tool cmake "Homebrew なら brew install cmake を実行してから、もう一度 scripts/build-engine.sh を実行してください。"
+require_tool c++ "Xcode Command Line Tools を入れてください (xcode-select --install)。"
+
 read_lock() {
   local key="$1"
   grep "^${key}=" "$LOCK_FILE" | head -n1 | cut -d= -f2-
@@ -43,8 +55,25 @@ BUILD_DIR="$SRC_DIR/build"
 cmake -S "$SRC_DIR" -B "$BUILD_DIR" -DGGML_METAL=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD_DIR" --config Release --target "$BINARY_NAME"
 
+BUILT=""
+for candidate in \
+  "$BUILD_DIR/bin/$BINARY_NAME" \
+  "$BUILD_DIR/bin/Release/$BINARY_NAME" \
+  "$BUILD_DIR/$BINARY_NAME"
+do
+  if [[ -x "$candidate" ]]; then
+    BUILT="$candidate"
+    break
+  fi
+done
+if [[ -z "$BUILT" ]]; then
+  echo "whisper-cli のビルド結果が見つかりません: $BUILD_DIR" >&2
+  exit 1
+fi
+
 mkdir -p "$OUT_DIR"
-cp "$BUILD_DIR/bin/$BINARY_NAME" "$OUT_DIR/$BINARY_NAME"
+cp "$BUILT" "$OUT_DIR/$BINARY_NAME"
+chmod +x "$OUT_DIR/$BINARY_NAME"
 
 PINNED="$(git -C "$SRC_DIR" rev-parse HEAD)"
 if grep -q '^whisper_cpp_ref=' "$LOCK_FILE"; then

@@ -8,6 +8,7 @@ import (
 	"os/exec"
 
 	"github.com/ShumaKitayama/localscribe/internal/domain"
+	"github.com/ShumaKitayama/localscribe/internal/platform/macos"
 )
 
 // CommandRunner は外部コマンドの標準出力と標準エラーを返す。テストでは偽実装を渡す。
@@ -30,9 +31,12 @@ func (ExecRunner) Run(ctx context.Context, binary string, args []string) (stdout
 	return outBuf.Bytes(), errBuf.Bytes(), nil
 }
 
-// ResolveFFmpegPath は LOCALSCRIBE_FFMPEG または PATH から ffmpeg を探す。
+// ResolveFFmpegPath は環境変数、アプリ同梱、PATH の順で ffmpeg を探す。
 func ResolveFFmpegPath() (string, error) {
 	if path := os.Getenv("LOCALSCRIBE_FFMPEG"); path != "" {
+		return path, nil
+	}
+	if path, ok := macos.BundledToolPath("ffmpeg"); ok {
 		return path, nil
 	}
 	path, err := exec.LookPath("ffmpeg")
@@ -45,9 +49,12 @@ func ResolveFFmpegPath() (string, error) {
 	return path, nil
 }
 
-// ResolveFFprobePath は LOCALSCRIBE_FFPROBE または PATH から ffprobe を探す。
+// ResolveFFprobePath は環境変数、アプリ同梱、PATH の順で ffprobe を探す。
 func ResolveFFprobePath() (string, error) {
 	if path := os.Getenv("LOCALSCRIBE_FFPROBE"); path != "" {
+		return path, nil
+	}
+	if path, ok := macos.BundledToolPath("ffprobe"); ok {
 		return path, nil
 	}
 	path, err := exec.LookPath("ffprobe")

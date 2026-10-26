@@ -1,4 +1,4 @@
-.PHONY: test test-integration test-frontend wails-dev wails-build
+.PHONY: test test-integration test-frontend wails-dev wails-build package-macos
 
 test:
 	go test ./...
@@ -16,3 +16,6 @@ wails-dev:
 wails-build:
 	cd frontend && npm run build
 	wails build
+
+package-macos:
+	scripts/package-macos.sh

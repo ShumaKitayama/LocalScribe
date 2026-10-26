@@ -15,6 +15,7 @@ import (
 
 	"github.com/ShumaKitayama/localscribe/internal/domain"
 	"github.com/ShumaKitayama/localscribe/internal/engine"
+	"github.com/ShumaKitayama/localscribe/internal/platform/macos"
 )
 
 var progressPercentRE = regexp.MustCompile(`progress\s*=\s*(\d+)%`)
@@ -166,6 +167,9 @@ func ParseProgressLine(line string) engine.Progress {
 // ResolveBinary は設計書の解決順で whisper-cli を探す。
 func ResolveBinary() (string, error) {
 	if path := os.Getenv("LOCALSCRIBE_WHISPER_CLI"); path != "" {
+		return path, nil
+	}
+	if path, ok := macos.BundledToolPath("whisper-cli"); ok {
 		return path, nil
 	}
 	home, err := os.UserHomeDir()

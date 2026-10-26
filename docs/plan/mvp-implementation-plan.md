@@ -400,6 +400,10 @@ Vitest では、パーセント欠落時に `%` 表示が出ないことと、`e
 設計書と実装計画のフェーズ 11 だけ実装してください。arm64 の .app と CLI を作る scripts/package-macos.sh を追加し、whisper-cli の同梱と FFmpeg のライセンス確認を入れてください。GPL になる FFmpeg は同梱せず報告してください。モデルの bin はアプリに含めないでください。
 ```
 
+2026-10-27 追記（フェーズ 11 完了）: `scripts/package-macos.sh` で arm64 の `wails build`・`go build ./cmd/localscribe`・`Contents/Resources/bin/whisper-cli` 同梱・`ffmpeg -version` 記録と GPL 判定（同梱スキップ時は `build/dist/packaging-report.txt`）・モデル `*.bin` の混入チェック・`Info.plist` マイク文言確認を行う。成果物は `build/dist/LocalScribe.app` と `build/dist/localscribe`。`internal/platform/macos/bundle.go` と `audio` / `whisper` の解決順に `.app` 同梱 bin を追加した。`make package-macos` で実行する。Homebrew 等の GPL FFmpeg は同梱しない。
+
+2026-10-27 追記（レビュー）: cmake が無く `scripts/build-engine.sh` が止まっていた。cmake の有無を先に見て、この Mac に cmake 4.4.4 を入れ、whisper.cpp `d1be6fde11ac6e0407606b4e42fe72d34add8037` をビルドした。`make package-macos` は成功した。`.app` には whisper-cli だけを同梱し、GPL の FFmpeg とモデル bin は入っていない。生成した Info.plist はマイク文言と `CFBundleExecutable` を持つ。`build/dist/localscribe doctor` は終了コード 0。Dock 上のファイル選択クリックは、このレビューでは行っていない。
+
 ## フェーズ 12 — 受け入れ
 
 コードを足すフェーズではない。設計書 12 節の 10 項目と、11 節の実機表を、M1 と M3 で実行し、結果を `docs/plan/acceptance-m1.md` と `docs/plan/acceptance-m3.md` に日付付きで残す。失敗項目は修正フェーズを新しく切る前に、設計上の問題か実装欠陥かを報告する。
