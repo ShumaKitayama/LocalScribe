@@ -1,0 +1,10 @@
+build/bin/
+build/whisper/
+frontend/node_modules/
+frontend/dist/
+
+*.bin
+*.partial
+*.wav
+
+.DS_Store

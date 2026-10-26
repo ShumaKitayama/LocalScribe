@@ -1,0 +1,6 @@
+go=1.25
+wails=v2.17.0
+module=github.com/ShumaKitayama/localscribe
+whisper_cpp_repo=https://github.com/ggml-org/whisper.cpp
+whisper_cpp_ref=unpinned
+ffmpeg=system

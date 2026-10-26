@@ -85,6 +85,10 @@ ffmpeg=system
 
 完了条件: `go test ./...` が成功する。アプリケーションコードはまだ無い。
 
+2026-10-27 追記（フェーズ 0 完了）: `go.mod`、`.gitignore`、`versions.lock`、`Makefile` を追加した。Go 1.27 ではパッケージが無いと `go test ./...` が終了コード 1 になるため、製品ロジックを含まない `tests/smoke/smoke_test.go` だけを置いた。`internal/platform/macos/paths.go` は未作成。
+
+2026-10-27 追記（レビュー）: フェーズ 0 を受け入れて `main` へ入れた。`make test` と `make test-integration` は成功した。`go.mod` の `go 1.25` は最低言語バージョンで、この開発機のツールチェーンは Go 1.27.3 である。作業ブランチは無く、共有は `main` への push で行った。
+
 依頼文:
 
 ```
