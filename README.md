@@ -2,7 +2,7 @@
 
 macOS（Apple Silicon）向けの、オフライン文字起こしアプリです。音声と認識結果は外部へ送りません。GUI と CLI は同じ Go の処理を使います。
 
-フェーズ 2（パスと JSON 保存）まで完了しています。`make test` で `go test ./...` を実行できます。音声変換や GUI は未実装です。
+フェーズ 3（audio）まで完了しています。`make test` で `go test ./...` を実行できます。実 FFmpeg は `make test-integration`（`go test -tags integration ./internal/audio/...`）。whisper・CLI・GUI は未実装です。
 
 | 文書                                             | 役割                                 |
 | ------------------------------------------------ | ------------------------------------ |

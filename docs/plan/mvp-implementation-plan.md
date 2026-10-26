@@ -170,6 +170,10 @@ Probe は音声ストリームが無い入力をエラーにする。Converter �
 
 完了条件: 引数テストが設計書のフラグ順と一致する。音声ストリーム無し、容量不足、作業ディレクトリ外への出力がエラーになる。偽実装は元ファイルを開いて書き込まない。
 
+2026-10-27 追記（フェーズ 3 完了）: `internal/audio` に FFprobe / FFmpeg の引数組み立て、`CommandRunner`、空き容量確認（`unix.Statfs`）、作業ディレクトリ内出力の検証を追加した。単体テストは偽 `CommandRunner`、`integration` タグだけ実 FFmpeg。依存に `golang.org/x/sys` を追加した。`go test ./...` が成功する。
+
+2026-10-27 追記（レビュー）: 完了条件を確認し、`go test ./...` と `go test -tags integration ./internal/audio/` が成功した。統合テストのサンプル音声生成は `exec.Command` だったので、`exec.CommandContext` と `t.Context()` に直した。アプリ同梱パスの解決はフェーズ 11 のままである。
+
 依頼文:
 
 ```
