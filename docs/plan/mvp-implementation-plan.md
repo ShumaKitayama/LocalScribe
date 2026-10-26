@@ -113,6 +113,8 @@ docs/design/system-design-v1.0.md と docs/plan/mvp-implementation-plan.md に�
 
 完了条件: 状態を終了状態から実行中へ戻す操作がテストで拒否される。編集テストで認識原文が残る。不正言語が拒否される。`go test ./...` が成功する。
 
+2026-10-27 追記（フェーズ 1 完了）: `internal/domain` に型と不変条件を追加し、`go test ./...` が成功した。終了状態からの遷移は拒否し、元の状態を残す。`source_kind`、進捗パーセントの省略、モデル状態 `missing` / `partial` / `available` は設計書 2026-10-27 追記と同じである。
+
 依頼文:
 
 ```

@@ -271,7 +271,9 @@ whisper-cli -m <model> -f <wav> -l <lang> -oj -of <work/whisper-out> -pp
 }
 ```
 
-表示と TXT / SRT の再出力は、`edited_text` があればそれを、なければ `text` を使う。編集 API は `edited_text` だけを変える。
+表示と TXT / SRT の再出力は、`edited_text` があればそれを、なければ `text` を使う。編集 API は `edited_text` だけを変える。空文字への編集は未編集とは区別し、認識文へ戻さない。
+
+2026-10-27 追記: `TranscriptionRequest` に `source_kind` を追加した。空または `file` は MP3 / M4A / WAV / FLAC / MP4 / MOV、`recording` は WebM だけを受け付ける。進捗の `percent` は未計測なら JSON から省き、実測の 0 は 0 として残す。モデル状態の保存値は `missing`、`partial`、`available` である。
 
 ### 設定
 
