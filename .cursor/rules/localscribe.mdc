@@ -7,7 +7,8 @@ alwaysApply: true
 
 指示の詳細は `AGENTS.md`。設計は `docs/design/system-design-v1.0.md`、手順は `docs/plan/mvp-implementation-plan.md`。
 
-- ドキュメントと既存コードが食い違うときはコードに従い、食い違いを最終返答で全て挙げる。
+- ドキュメントと既存コードが食い違うときはコードに従い、食い違いを最終返答で全て挙げる。更新はその都度、該当文書へ追記する。
+- Go の実装と修正の前に、必ず `/use-modern-go` を使う。
 - 依頼されたフェーズだけ実装する。履歴検索、VAD、Finder 連携、フォルダ監視、話者分離、リアルタイム、他アプリ入力、Wails v3 は作らない。
 - 外部プロセスは `exec.CommandContext` の引数配列で起動する。
 - `*.bin`、作業 WAV、`build/whisper/` をコミットしない。
