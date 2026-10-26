@@ -1,0 +1,43 @@
+{
+  "systeminfo": "fixture",
+  "model": {
+    "type": "large",
+    "multilingual": true,
+    "vocab": 51866,
+    "audio": {
+      "ctx": 1500,
+      "state": 1280,
+      "head": 20,
+      "layer": 32
+    },
+    "text": {
+      "ctx": 448,
+      "state": 1280,
+      "head": 20,
+      "layer": 32
+    },
+    "mels": 80,
+    "ftype": 1
+  },
+  "params": {
+    "model": "models/ggml-large-v3.bin",
+    "language": "ja",
+    "translate": false
+  },
+  "result": {
+    "language": "ja"
+  },
+  "transcription": [
+    {
+      "timestamps": {
+        "from": "00:00:00,990",
+        "to": "00:00:07,800"
+      },
+      "offsets": {
+        "from": 990,
+        "to": 7800
+      },
+      "text": " My fellow Americans, this day has brought terrible news and great sadness to our country."
+    }
+  ]
+}

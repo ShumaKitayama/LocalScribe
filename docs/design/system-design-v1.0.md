@@ -348,6 +348,8 @@ https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-large-v3-turbo.bi
 2. `~/Library/Application Support/LocalScribe/bin/whisper-cli`
 3. リポジトリの `build/whisper/whisper-cli`（Git 管理外）
 
+2026-10-27 追記: 実装は、上記のあと PATH 上の `whisper-cli` も探す。`engine.Request` の作業ディレクトリは、出力プレフィックスが作業ディレクトリ内かの検査にはまだ使っていない。セグメント本文は前後の空白を除く。`-oj` に `offsets` が無いセグメントは 0 ミリ秒になる。実機の whisper-cli が無いあいだ、フィクスチャの出典は `tests/fixtures/whisper-output.source.md` に置く。JSON にはコメントを書けない。
+
 FFmpeg の解決順:
 
 1. `LOCALSCRIBE_FFMPEG` と `LOCALSCRIBE_FFPROBE`

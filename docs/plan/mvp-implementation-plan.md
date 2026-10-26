@@ -226,6 +226,10 @@ JSON は設計書 7 節の形で、`schema_version` が 1。TXT は表示文を�
 
 完了条件: フィクスチャのパーサーテストが通る。偽プロセスでキャンセルが `cancelled` 相当のエラーになる。パーセントが無い出力で進捗数値が nil のままである。
 
+2026-10-27 追記（フェーズ 5 完了）: `internal/engine` の `Engine` インターフェース、`internal/engine/whisper`（引数、標準エラー進捗、`ParseOutputJSON`、context 取消）、`tests/fixtures/whisper-output.json`、`scripts/build-engine.sh` を追加した。開発機に whisper-cli が無く、フィクスチャは whisper.cpp 公式 `-oj` 形（出典は `tests/fixtures/whisper-output.source.md`）。`go test ./...` が成功する。
+
+2026-10-27 追記（レビュー）: フィクスチャの `offsets.from` / `offsets.to`（990 / 7800）をパーサーテストが読んでいる。偽プロセスの取消は `engine.ErrCancelled`、パーセントの無い行は `Percent == nil`。`versions.lock` の `whisper_cpp_ref` は未ビルドのため `unpinned` のまま。ビルド用の clone 先 `build/whisper-src/` を Git の対象外にした。実機の `-oj` への差し替えは、`scripts/build-engine.sh` 実行後に行う。
+
 依頼文:
 
 ```
