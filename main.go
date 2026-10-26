@@ -17,15 +17,17 @@ func main() {
 	app := NewApp()
 	err := wails.Run(&options.App{
 		Title:  "LocalScribe",
-		Width:  720,
-		Height: 480,
+		Width:  960,
+		Height: 640,
 		AssetServer: &assetserver.Options{
-			Assets: assets,
+			Assets:  assets,
+			Handler: NewJobAudioHandler(app),
 		},
 		Mac: &mac.Options{
 			TitleBar: mac.TitleBarDefault(),
 		},
-		OnStartup: app.startup,
+		OnStartup:  app.startup,
+		OnShutdown: app.shutdown,
 		Bind: []interface{}{
 			app,
 		},
