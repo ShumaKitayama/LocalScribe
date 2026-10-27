@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ExportTranscript,
   GetJob,
@@ -6,8 +6,9 @@ import {
   RevealOutputFolder,
   UpdateTranscript,
 } from "../../wailsjs/go/main/App";
-import { AudioPlayer } from "../components/AudioPlayer";
+import { AudioPlayer, type AudioControls } from "../components/AudioPlayer";
 import { TranscriptEditor } from "../components/TranscriptEditor";
+import { errorMessage, fileBaseName } from "../lib/display";
 import { domain } from "../../wailsjs/go/models";
 
 type Props = {
@@ -19,8 +20,10 @@ type Props = {
 export function ResultPage({ jobID, transcriptID, onBack }: Props) {
   const [transcript, setTranscript] = useState<domain.Transcript | null>(null);
   const [resultDir, setResultDir] = useState("");
-  const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [exportError, setExportError] = useState("");
   const [status, setStatus] = useState("");
+  const playerRef = useRef<AudioControls>(null);
 
   const reload = useCallback(async () => {
     const [t, job] = await Promise.all([GetTranscript(transcriptID), GetJob(jobID)]);
@@ -30,85 +33,99 @@ export function ResultPage({ jobID, transcriptID, onBack }: Props) {
 
   useEffect(() => {
     void reload().catch((err) => {
-      setError(err instanceof Error ? err.message : String(err));
+      setLoadError(errorMessage(err));
     });
   }, [reload]);
 
   const handleSaveSegment = useCallback(
     async (index: number, editedText: string) => {
-      setError("");
-      try {
-        await UpdateTranscript(transcriptID, [
-          domain.SegmentEdit.createFrom({ index, edited_text: editedText }),
-        ]);
-        await reload();
-        setStatus("保存しました");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
-      }
+      setStatus("");
+      await UpdateTranscript(transcriptID, [
+        domain.SegmentEdit.createFrom({ index, edited_text: editedText }),
+      ]);
+      await reload();
+      setStatus("保存しました");
     },
     [reload, transcriptID],
   );
 
-  const exportFormats = useCallback(async (formats: string[]) => {
-    setError("");
-    try {
-      await ExportTranscript(transcriptID, formats);
-      setStatus("書き出しました");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    }
-  }, [transcriptID]);
+  const exportFormats = useCallback(
+    async (formats: string[]) => {
+      setExportError("");
+      setStatus("");
+      try {
+        await ExportTranscript(transcriptID, formats);
+        setStatus("書き出しました");
+      } catch (err) {
+        setExportError(errorMessage(err));
+      }
+    },
+    [transcriptID],
+  );
+
+  const title = fileBaseName(transcript?.source_path);
 
   return (
     <div className="result-page">
       <header className="result-header">
         <button type="button" className="btn btn-secondary" onClick={onBack}>
-          戻る
+          ホームへ戻る
         </button>
-        <h1>文字起こし結果</h1>
+        <div className="result-title">
+          <p className="eyebrow">文字起こし結果</p>
+          <h1 title={transcript?.source_path}>{title}</h1>
+        </div>
       </header>
-      {error ? <p className="error">{error}</p> : null}
-      {status ? <p className="status">{status}</p> : null}
+      {loadError ? (
+        <p className="error banner" role="alert">
+          {loadError}
+        </p>
+      ) : null}
+      {status ? (
+        <p className="status" role="status">
+          {status}
+        </p>
+      ) : null}
       <div className="result-layout">
-        <AudioPlayer jobID={jobID} sourcePath={transcript?.source_path ?? ""} />
+        <AudioPlayer ref={playerRef} jobID={jobID} sourcePath={transcript?.source_path ?? ""} />
         {transcript ? (
-          <TranscriptEditor transcript={transcript} onSaveSegment={handleSaveSegment} />
+          <TranscriptEditor
+            transcript={transcript}
+            onSaveSegment={handleSaveSegment}
+            onSeek={(ms) => playerRef.current?.seek(ms)}
+            onCopyResult={setStatus}
+          />
         ) : null}
       </div>
-      <div className="export-actions">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => void exportFormats(["txt"])}
-        >
+      <div className="export-bar">
+        <button type="button" className="btn btn-secondary" onClick={() => void exportFormats(["txt"])}>
           TXT を再出力
         </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => void exportFormats(["srt"])}
-        >
+        <button type="button" className="btn btn-secondary" onClick={() => void exportFormats(["srt"])}>
           SRT を再出力
         </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => void exportFormats(["json"])}
-        >
+        <button type="button" className="btn btn-secondary" onClick={() => void exportFormats(["json"])}>
           JSON を再出力
         </button>
         <button
           type="button"
           className="btn btn-secondary"
+          disabled={!resultDir}
           onClick={() => {
             if (resultDir) {
-              void RevealOutputFolder(resultDir);
+              void RevealOutputFolder(resultDir).catch((err) => {
+                setExportError(errorMessage(err));
+              });
             }
           }}
         >
           出力フォルダを開く
         </button>
+        {exportError ? (
+          <p className="error" role="alert">
+            {exportError}
+          </p>
+        ) : null}
       </div>
     </div>
   );

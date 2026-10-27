@@ -4,16 +4,10 @@ import { MainPage } from "./pages/MainPage";
 import { ResultPage } from "./pages/ResultPage";
 import type { domain } from "../wailsjs/go/models";
 
-type Screen =
-  | { name: "main"; activeJobID: string | null }
-  | { name: "result"; jobID: string; transcriptID: string };
+type Screen = { name: "main" } | { name: "result"; jobID: string; transcriptID: string };
 
 function App() {
-  const [screen, setScreen] = useState<Screen>({ name: "main", activeJobID: null });
-
-  const onJobStarted = useCallback((jobID: string) => {
-    setScreen({ name: "main", activeJobID: jobID });
-  }, []);
+  const [screen, setScreen] = useState<Screen>({ name: "main" });
 
   const onJobFinished = useCallback((job: domain.TranscriptionJob) => {
     if (!job.transcript_id) {
@@ -27,7 +21,7 @@ function App() {
   }, []);
 
   const onBack = useCallback(() => {
-    setScreen({ name: "main", activeJobID: null });
+    setScreen({ name: "main" });
   }, []);
 
   if (screen.name === "result") {
@@ -36,13 +30,7 @@ function App() {
     );
   }
 
-  return (
-    <MainPage
-      activeJobID={screen.activeJobID}
-      onJobStarted={onJobStarted}
-      onJobFinished={onJobFinished}
-    />
-  );
+  return <MainPage onJobFinished={onJobFinished} />;
 }
 
 export default App;

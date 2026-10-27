@@ -139,6 +139,7 @@ if ! grep -q 'CFBundleExecutable' "$PLIST"; then
   exit 1
 fi
 
+rm -rf "$DIST_DIR/LocalScribe.app"
 cp -R "$APP_PATH" "$DIST_DIR/LocalScribe.app"
 echo "app -> $DIST_DIR/LocalScribe.app" | tee -a "$REPORT"
 echo "ffmpeg bundled: $bundle_ffmpeg" | tee -a "$REPORT"

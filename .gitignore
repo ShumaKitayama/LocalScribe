@@ -3,6 +3,7 @@ build/dist/
 build/whisper/
 build/whisper-src/
 frontend/node_modules/
+frontend/*.tsbuildinfo
 
 *.bin
 *.partial

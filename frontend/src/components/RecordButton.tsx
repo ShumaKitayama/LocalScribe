@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { SaveRecording, StartTranscription } from "../../wailsjs/go/main/App";
+import { errorMessage } from "../lib/display";
 import type { domain } from "../../wailsjs/go/models";
 
 type Props = {
@@ -21,8 +22,9 @@ export function RecordButton({ disabled, buildRequest, onJobStarted, onError }: 
   }, []);
 
   const startRecording = useCallback(async () => {
+    onError("");
     if (!navigator.mediaDevices?.getUserMedia) {
-      onError("この環境では MediaRecorder を利用できません。");
+      onError("この環境ではマイク録音を利用できません。");
       return;
     }
     try {
@@ -47,16 +49,15 @@ export function RecordButton({ disabled, buildRequest, onJobStarted, onError }: 
           const jobID = await StartTranscription(req);
           onJobStarted(jobID);
         } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          onError(message);
+          onError(errorMessage(err));
         }
       };
       recorderRef.current = recorder;
       recorder.start();
       setRecording(true);
     } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      onError(`マイクを開始できません: ${message}`);
+      stopTracks();
+      onError(`マイクを開始できません。${errorMessage(err)}`);
     }
   }, [buildRequest, onError, onJobStarted, stopTracks]);
 
@@ -68,13 +69,15 @@ export function RecordButton({ disabled, buildRequest, onJobStarted, onError }: 
   }, []);
 
   return (
-    <div className="record-controls">
-      <button type="button" className="btn" onClick={startRecording} disabled={disabled || recording}>
-        録音開始
-      </button>
-      <button type="button" className="btn" onClick={stopRecording} disabled={!recording}>
-        録音停止
-      </button>
-    </div>
+    <button
+      type="button"
+      className={`btn btn-record${recording ? " btn-record--live" : ""}`}
+      aria-pressed={recording}
+      onClick={recording ? stopRecording : () => void startRecording()}
+      disabled={disabled && !recording}
+    >
+      <span className="record-dot" aria-hidden="true" />
+      {recording ? "録音を停止" : "マイクで録音"}
+    </button>
   );
 }

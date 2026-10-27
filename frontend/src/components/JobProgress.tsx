@@ -1,4 +1,4 @@
-import { formatProgressPercent } from "../lib/display";
+import { formatProgressPercent, jobStateLabel } from "../lib/display";
 import type { domain } from "../../wailsjs/go/models";
 
 type Props = {
@@ -20,23 +20,27 @@ export function JobProgress({ job, onCancel }: Props) {
   const progress = job.progress;
   const percentLabel = formatProgressPercent(progress?.percent);
   const busy = !job.state || !["completed", "failed", "cancelled", "interrupted"].includes(job.state);
+  const heading = progress?.message || jobStateLabel(job.state);
 
   return (
     <section className="job-progress" aria-live="polite">
-      <p className="job-phase">{progress?.message ?? job.state}</p>
-      <p className="job-meta">
-        <span>{job.state}</span>
-        {progress?.elapsed_ms != null && progress.elapsed_ms > 0 ? (
-          <span>経過 {formatElapsed(progress.elapsed_ms)}</span>
-        ) : null}
-        {percentLabel ? <span>{percentLabel}</span> : null}
-      </p>
+      <div className="job-progress-head">
+        <p className="job-phase">{heading}</p>
+        <p className="job-meta">
+          <span>{jobStateLabel(job.state)}</span>
+          {progress?.elapsed_ms != null && progress.elapsed_ms > 0 ? (
+            <span className="tabular">経過 {formatElapsed(progress.elapsed_ms)}</span>
+          ) : null}
+          {percentLabel ? <span className="tabular">{percentLabel}</span> : null}
+        </p>
+      </div>
       <div
         className={`progress-bar${percentLabel ? "" : " progress-bar--indeterminate"}`}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={percentLabel ? Math.round(progress?.percent ?? 0) : undefined}
+        aria-label={heading}
       >
         {percentLabel ? (
           <div className="progress-bar-fill" style={{ width: percentLabel }} />
@@ -49,7 +53,11 @@ export function JobProgress({ job, onCancel }: Props) {
           キャンセル
         </button>
       ) : null}
-      {job.error?.message ? <p className="error">{job.error.message}</p> : null}
+      {job.error?.message ? (
+        <p className="error" role="alert">
+          {job.error.message}
+        </p>
+      ) : null}
     </section>
   );
 }

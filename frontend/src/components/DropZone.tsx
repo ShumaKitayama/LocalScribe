@@ -4,12 +4,13 @@ import { OnFileDrop, OnFileDropOff } from "../../wailsjs/runtime/runtime";
 type Props = {
   disabled?: boolean;
   onFiles: (paths: string[]) => void;
+  onPick: () => void;
 };
 
-export function DropZone({ disabled, onFiles }: Props) {
+export function DropZone({ disabled, onFiles, onPick }: Props) {
   useEffect(() => {
-    if (disabled) {
-      OnFileDropOff();
+    const runtime = (window as Window & { runtime?: { OnFileDrop?: unknown } }).runtime;
+    if (disabled || !runtime?.OnFileDrop) {
       return;
     }
     OnFileDrop((_x, _y, paths) => {
@@ -24,8 +25,11 @@ export function DropZone({ disabled, onFiles }: Props) {
 
   return (
     <div className={`drop-zone${disabled ? " drop-zone--disabled" : ""}`}>
-      <p>音声ファイルをここへドロップ</p>
-      <p className="hint">mp3 / m4a / wav / flac / mp4 / mov</p>
+      <p className="drop-title">音声をここにドロップ</p>
+      <p className="hint">MP3 / M4A / WAV / FLAC / MP4 / MOV</p>
+      <button type="button" className="btn btn-primary" onClick={onPick} disabled={disabled}>
+        ファイルを選択
+      </button>
     </div>
   );
 }
